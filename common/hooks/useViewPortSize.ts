@@ -19,11 +19,6 @@ export const useViewPortSize =()=>{
         };
     },[]);
 
-    
-
-
-
-
-
+    return {width,height};
 };
 

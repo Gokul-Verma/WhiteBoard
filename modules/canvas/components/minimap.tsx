@@ -4,13 +4,14 @@ import { useViewPortSize } from "@/common/hooks/useViewPortSize";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 
 
-const MiniMap = forwardRef<{
-x:MotionValue<number>
-y:MotionValue<number>
-dragging: boolean
-setMovedMiniMap: Dispatch<SetStateAction<boolean>>
+const MiniMap = forwardRef<
+HTMLCanvasElement,{
+x:MotionValue<number>;
+y:MotionValue<number>;
+dragging: boolean;
+setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
 }>
-(({x,y,dragging,setMovedMinimap},ref)=>{
+(({x,y,dragging,setMovedMiniMap},ref)=>{
      const containerRef=useRef<HTMLDivElement>(null)
 
      const {width,height}=useViewPortSize();
@@ -34,35 +35,51 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>
         };
      },[dragging,miniX,miniY,x,y]);
     
-     return <div className="absolute right-10 top-10 z-50 bg-zinc-400" ref={containerRef} style={{
+     return (
+     <div ref={containerRef} style={{
         width:CANVAS_SIZE.width/10,
-        height:CANVAS_SIZE.height/10
-        
+        height:CANVAS_SIZE.height/10,
+        position: 'absolute',
+        right: '10px',
+        top: '10px',
+        zIndex: 50,
+        backgroundColor: '#ccc', // Specify your preferred shade of grey using its hex code
     }}>
         <canvas
-            ref={ref as any}
+            ref={ref}
             width={CANVAS_SIZE.width}
             height={CANVAS_SIZE.height}
-            className="h-full w-full"
+            style={{ height: '100vh', width: '100vw' }}
         />
         <motion.div
-        drag
-        dragConstraints={containerRef}
-        dragElastic={0}
-        dragTransition={{power:0,timeConstant:0}}
-        onDragEnd={()=>setMovedMinimap((prev:boolean)=>prev)}
-        className="absolute top-0 left-0 cursor-grab border-red-500"
-        style={{
-            width:width/10,
-            height:height/10,
-            x:miniX,
-            y:miniY
-        }}  
-        animate={{x:-x.get()/10,y:-y.get()/10}}
-        transition={(duration:0.1)}
-        />
+            drag
+            dragConstraints={containerRef}
+            dragElastic={0}
+            
+            dragTransition={{power:0,timeConstant:0}}
+            onDragStart={()=>setMovedMiniMap((prev:boolean)=>!prev)}
+            onDragEnd={()=>setMovedMiniMap((prev:boolean)=>!prev)}
+            //className="absolute top-0 left-0 cursor-grab border-2 border-red-500"
+            style={{
+                x:miniX,
+                y:miniY,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                cursor: 'grab',
+                border: '2px solid #ff0000', // border-red-500
+                width: width / 10,
+                height: height / 10,
+                background:"#A9A9A9",
+                
+            }}  
+            animate={{x:-x.get()/10,y:-y.get()/10}}
+            transition={{duration:0.1}}
+        >
+        </motion.div>
 
     </div>
+    )
 })
 
 MiniMap.displayName='MiniMap';
