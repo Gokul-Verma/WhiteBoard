@@ -2,24 +2,24 @@ import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
 import {MotionValue, useMotionValue, motion} from "framer-motion";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
+import { useBoardPosition } from "../hooks/useBoardPosition";
 
 
 const MiniMap = forwardRef<
 HTMLCanvasElement,{
-x:MotionValue<number>;
-y:MotionValue<number>;
 dragging: boolean;
 setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
 }>
-(({x,y,dragging,setMovedMiniMap},ref)=>{
-     const containerRef=useRef<HTMLDivElement>(null)
+(({dragging,setMovedMiniMap},ref)=>{
+    const {x,y}=useBoardPosition();
+    const containerRef=useRef<HTMLDivElement>(null)
 
-     const {width,height}=useViewPortSize();
+    const {width,height}=useViewPortSize();
      
-     const miniX=useMotionValue(0)
-     const miniY=useMotionValue(0)
+    const miniX=useMotionValue(0)
+    const miniY=useMotionValue(0)
     
-     useEffect(()=>{
+    useEffect(()=>{
         miniX.onChange((newX)=>{
             if(!dragging)
                 x.set(-newX*10);
@@ -43,7 +43,7 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
         right: '10px',
         top: '10px',
         zIndex: 50,
-        backgroundColor: '#ccc', // Specify your preferred shade of grey using its hex code
+        backgroundColor: 'grey', // Specify your preferred shade of grey using its hex code
     }}>
         <canvas
             ref={ref}
@@ -55,7 +55,6 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
             drag
             dragConstraints={containerRef}
             dragElastic={0}
-            
             dragTransition={{power:0,timeConstant:0}}
             onDragStart={()=>setMovedMiniMap((prev:boolean)=>!prev)}
             onDragEnd={()=>setMovedMiniMap((prev:boolean)=>!prev)}
@@ -70,7 +69,7 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
                 border: '2px solid #ff0000', // border-red-500
                 width: width / 10,
                 height: height / 10,
-                background:"#A9A9A9",
+                
                 
             }}  
             animate={{x:-x.get()/10,y:-y.get()/10}}

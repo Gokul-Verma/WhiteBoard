@@ -37,7 +37,7 @@ export const useDraw =(
     }
 
     const handleEndDrawing=()=>{
-        if(!ctx)
+        if(!ctx||blocked)
             return;
         
         socket.emit("draw",moves,options);
@@ -47,7 +47,10 @@ export const useDraw =(
     };
 
     const handleDraw =(x:number,y:number)=>{
-        if(ctx&&drawing&&!blocked)
+        if(!ctx|| !drawing||blocked)
+        {
+            return;
+        }
         {
             moves.push([x+movedX,y+movedY]);
             ctx.lineTo(x+movedX,y+movedY);

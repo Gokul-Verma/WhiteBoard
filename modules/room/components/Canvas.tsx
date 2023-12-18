@@ -104,6 +104,7 @@ const Canvas=()=>{
 
       return (
         <div style={{
+            position:"relative",
             height: '100%',
             width: '100%',
             overflow: 'hidden',
@@ -115,7 +116,7 @@ const Canvas=()=>{
                 width={CANVAS_SIZE.width}
                 height={CANVAS_SIZE.height}
                 className={`bg-red ${dragging ? 'cursor-move' : ''}`}                
-                style={{ x, y, background: "grey" }}
+                style={{ x, y, background: "#ccc" }}
                 
                 drag={dragging}
                 dragConstraints={{
@@ -150,8 +151,6 @@ const Canvas=()=>{
             />
             <MiniMap
                 ref={smallCanvasRef}
-                x={x}
-                y={y}
                 dragging={dragging}
                 setMovedMiniMap={setMovedMiniMap}
             />
