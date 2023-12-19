@@ -9,8 +9,8 @@ const Room =()=>{
         <RoomContextProvider>
             <div style={{
                 position:"relative",
-                height:"100%",
-                width:"100%",
+                height:"vh",
+                width:"vw",
                 overflow:"hidden"
         }}>
                 <Canvas/>
