@@ -5,7 +5,6 @@ import {  useEffect, useRef, useState } from "react"
 import {useKeyPressEvent} from "react-use";
 import { useDraw, useSocketDraw } from "../hooks/Canvas.hooks";
 import { socket } from "@/common/lib/socket";
-import { drawFromSocket } from "../helper/canvas.helpers";
 import MiniMap from "./minimap";
 import { useBoardPosition } from "../hooks/useBoardPosition";
 
@@ -52,7 +51,7 @@ const Canvas=()=>{
     };
 
 
-    const {handleDraw, handleStartDrawing,handleEndDrawing,handleUndo}=useDraw(
+    const {handleDraw, handleStartDrawing,handleEndDrawing,handleUndo,drawing}=useDraw(
         ctx,
         dragging,
         copyCanvasToSmall
@@ -75,17 +74,17 @@ const Canvas=()=>{
         };
     },[dragging]);
 
-    useSocketDraw(ctx,copyCanvasToSmall);
+    useSocketDraw(ctx,drawing,copyCanvasToSmall);
     
       return (
         <div style={{
             position:"relative",
-            height: 'vh',
-            width: 'vw',
+            height: '100%',
+            width: '100%',
             overflow: 'hidden',
             //background: '#ccc', // replace with your desired background color
           }}>
-            <button className="absolute top-0" onClick={handleUndo}>
+            <button onClick={handleUndo}>
               UNDO
               </button>
             <motion.canvas

@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react"
 import { socket } from "@/common/lib/socket";
 import { useOptions } from "@/common/recoil/options";
-import { drawOnUndo } from "../helper/canvas.helpers";
+import { drawOnUndo, handleMove } from "../helper/canvas.helpers";
 import usersAtom, { useUsers } from "@/common/recoil/users";
 import { useBoardPosition } from "./useBoardPosition";
 import { getPos } from "@/common/lib/getPos";
 import { useSetRecoilState } from "recoil";
+import e from "express";
+import { UserMouse } from "../components/UserMouse";
 
-const savedMoves:[number,number][][]=[];
+const savedMoves:Move[]=[];
 let moves :[number,number][]=[];
 
 export const useDraw =(
@@ -72,11 +74,17 @@ export const useDraw =(
         if(!ctx||blocked)
             return;
         
-        setDrawing(false);
         ctx.closePath();
-        savedMoves.push(moves)
+        setDrawing(false);
 
-        socket.emit("draw",moves,options);
+        const move:Move={
+            path:moves,
+            options,
+        };
+
+        savedMoves.push(move)
+
+        socket.emit("draw",move);
         moves=[]
         
         handleEnd();
@@ -105,34 +113,86 @@ export const useDraw =(
 
 export const useSocketDraw=(
     ctx:CanvasRenderingContext2D|undefined,
+    drawing:boolean,
     handleEnd:()=>void
 )=>{
     const setUsers=useSetRecoilState(usersAtom)
 
     useEffect(()=>{
-        socket.on("user_draw",(newMoves,options,userId)=>{
-            if(ctx)
-            {
-                ctx.lineWidth=options.lineWidth
-                ctx.strokeStyle=options.lineColor
+        socket.emit("joined_room");
+    },[]);
 
-                ctx.beginPath()
 
-                newMoves.forEach(([x,y])=>{
-                    ctx.lineTo(x,y)
-                })
-                ctx.stroke();
-                ctx.closePath()
+    useEffect(()=>{
+        socket.on("room",(roomJSON)=>{
+            const room : Room=new Map(JSON.parse(roomJSON));
 
+            room.forEach((userMoves,userID)=>{
+                if(ctx)
+                {
+                    userMoves.forEach((move)=>{
+                        handleMove(move,ctx);
+                    })
+                }
                 handleEnd();
+
+                setUsers((prevUsers)=>(
+                    {...prevUsers,[userID]:userMoves}
+                ));
+            });
+
+        });
+        return()=>{
+            socket.off("room");
+        }
+    },[ctx,handleEnd,setUsers]);
+
+
+    useEffect(()=>{
+        let moveToDrawLater:Move|undefined;
+        let userIdLater="";
+        socket.on("user_draw",(move,userId)=>{
+            if(ctx&&!drawing)
+            {
+                handleMove(move,ctx);
+                
 
                 setUsers((prevUsers)=>{
                     const newUsers={...prevUsers}
-                    newUsers[userId]=[...newUsers[userId],newMoves];
+                    if(newUsers[userId])
+                        newUsers[userId]= [...newUsers[userId],move];
                     return newUsers;
                 });
             }
+            else{
+                moveToDrawLater=move;
+                userIdLater=userId;
+            }
         });
+        
+
+        return ()=>{
+            socket.off("user_draw");
+
+            if(moveToDrawLater&&userIdLater&&ctx)
+            {
+                handleMove(moveToDrawLater,ctx);
+                handleEnd();
+                setUsers((prevUsers)=>{
+                    const newUsers={...prevUsers}
+
+                    newUsers[userIdLater]=[
+                        ...newUsers[userIdLater],moveToDrawLater as Move
+                    ]
+                    return newUsers;
+                })
+            }
+            
+        }
+    
+    },[ctx,handleEnd,setUsers,drawing]);
+
+    useEffect(()=>{
         socket.on("user_undo",(userId)=>{
             setUsers((prevUsers)=>{
                 const newUsers={...prevUsers};
@@ -145,14 +205,10 @@ export const useSocketDraw=(
                 }
                 return newUsers;
             });
-
         });
-
         return ()=>{
-            socket.off("user_draw");
             socket.off("user_undo");
         }
-    
-    },[ctx,handleEnd,setUsers])
+    },[ctx,handleEnd,setUsers]);
 }
 

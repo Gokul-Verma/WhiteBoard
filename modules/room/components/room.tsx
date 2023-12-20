@@ -2,6 +2,7 @@ import RoomContextProvider from "../context/Room.context"
 import Canvas from "./Canvas"
 import { MousePosition } from "./MousePosition"
 import { MouseRenderer } from "./MouseRenderer"
+import { ToolBar } from "./ToolBar";
 
 const Room =()=>{
 
@@ -12,7 +13,8 @@ const Room =()=>{
                 height:"vh",
                 width:"vw",
                 overflow:"hidden"
-        }}>
+            }}>
+                <ToolBar/>
                 <Canvas/>
                 <MousePosition/>
                 <MouseRenderer/>

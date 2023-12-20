@@ -4,7 +4,7 @@ import { socket } from "@/common/lib/socket";
 import { motion } from "framer-motion";
 import {BsCursorFill} from "react-icons/bs"
 
-export const SocketMouse = ({userId}:{userId:string})=>{
+export const UserMouse = ({userId}:{userId:string})=>{
     const boardPos=useBoardPosition();
     const [x,setX] =useState(boardPos.x.get());
     const [y,setY] =useState(boardPos.y.get());
@@ -43,6 +43,7 @@ export const SocketMouse = ({userId}:{userId:string})=>{
             position:"absolute",
             top:0,
             left:0,
+            pointerEvents:"none"
             //color:"blue"
         }}
         animate={{x:pos.x+x,y:pos.y+y}}
