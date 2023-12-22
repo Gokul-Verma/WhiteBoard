@@ -47,7 +47,7 @@ export const UserMouse = ({userId}:{userId:string})=>{
             //color:"blue"
         }}
         animate={{x:pos.x+x,y:pos.y+y}}
-        transition={{duration: 0.3,ease:"linear"}}
+        transition={{duration: 0.1,ease:"linear"}}
         >
         <BsCursorFill />
         </motion.div>
