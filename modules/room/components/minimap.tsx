@@ -22,11 +22,11 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
     useEffect(()=>{
         miniX.onChange((newX)=>{
             if(!dragging)
-                x.set(-newX*10);
+                x.set(-newX*7);
         })
         miniY.onChange((newY)=>{
             if(!dragging)
-                y.set(-newY*10);
+                y.set(-newY*7);
         });
 
         return ()=>{
@@ -37,12 +37,12 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
     
      return (
      <div ref={containerRef} style={{
-        width:CANVAS_SIZE.width/10,
-        height:CANVAS_SIZE.height/10,
+        width:CANVAS_SIZE.width/7,
+        height:CANVAS_SIZE.height/7,
         position: 'absolute',
         right: '10px',
         top: '10px',
-        zIndex: 50,
+        zIndex: 30,
         backgroundColor: 'grey', // Specify your preferred shade of grey using its hex code
     }}>
         <canvas
@@ -67,8 +67,9 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
                 left: 0,
                 cursor: 'grab',
                 border: '2px solid #ff0000', // border-red-500
-                width: width / 10,
-                height: height / 10,
+                width: width / 7,
+                height: height / 7,
+                
                 
                 
             }}  

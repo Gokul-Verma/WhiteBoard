@@ -9,9 +9,8 @@ const useModal=()=>{
     const openModal=(modal:JSX.Element|JSX.Element[])=>{
         setModal({modal,opened:true});}
         
-    const closeModal=(modal:JSX.Element|JSX.Element[])=>{
+    const closeModal=()=>{
         setModal({modal:<></>,opened:false});}
-    
 
         return {openModal,closeModal};
 };

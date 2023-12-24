@@ -8,7 +8,7 @@ const NotFoundModal =({id}:{id:string})=>{
             <button onClick={closeModal} style={{}}>
                 <AiOutlineClose/>
             </button>
-            <h2>NOT FOUBD </h2>
+            <h2>ROOM WITH ID ({id}) NOT FOUND </h2>
         </div>
     )
 };
