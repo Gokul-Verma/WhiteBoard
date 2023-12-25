@@ -59,7 +59,7 @@ const Canvas=()=>{
         ctx,
         dragging,
         );
-      useSocketDraw(ctx,drawing);
+      useSocketDraw(drawing);
 
       //SETUP
     useEffect(()=>{

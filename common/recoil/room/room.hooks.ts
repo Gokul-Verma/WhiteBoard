@@ -7,7 +7,7 @@ export const useRoom=()=>{
     return room;
 }
 export const useSetRoom=()=>{
-    const setRoom=useRecoilState(roomAtom);
+    const setRoom=useSetRecoilState(roomAtom);
     return setRoom;
 }
 
@@ -30,50 +30,58 @@ export const useSetRoomId =()=>{
 
 
 export const useSetUsers=()=>{
-    const setUsers=useSetRecoilState(roomAtom);
+    const setRoom=useSetRecoilState(roomAtom);
 
-    const handleAddUser=(userId:string)=>{
-        setUsers((prev)=>{
+    const handleAddUser=(userId:string,username:string)=>{
+        setRoom((prev)=>{
             const newUsers=prev.users;
-            newUsers.set(userId,[]);
-            return {...prev,users:newUsers};
+            const newUsersMoves=prev.usersMoves;
+
+            newUsers.set(userId,username);
+            newUsersMoves.set(userId,[]);
+            
+            return {...prev,users:newUsers,usersMoves:newUsersMoves};
         });
     };
+    
     const handleRemoveUser=(userId:string)=>{
-        setUsers((prev)=>{
+        setRoom((prev)=>{
             const newUsers=prev.users
-            const userMoves=newUsers.get(userId);
+            const newUserMoves=prev.usersMoves;
 
+            const userMoves=newUserMoves.get(userId);
             newUsers.delete(userId);
+            newUserMoves.delete(userId);
 
             return{
                 ...prev,
                 users:newUsers,
+                usersMoves:newUserMoves,
                 movesWithoutUser:[...prev.movesWithoutUser,...(userMoves||[])]
             };
         });
     };
 
     const handleAddMoveToUser= (userId:string,moves:Move)=>{
-        setUsers((prev)=>{
-            const newUsers=prev.users;
+        setRoom((prev)=>{
+            const newUserMoves=prev.usersMoves;
 
-            const oldMoves=prev.users.get(userId)
+            const oldMoves=prev.usersMoves.get(userId)
 
-            newUsers.set(userId,[...(oldMoves||[]),moves]);
-            return {...prev,users:newUsers};
+            newUserMoves.set(userId,[...(oldMoves||[]),moves]);
+            return {...prev,usersMoves:newUserMoves};
         });
     };
 
     const handleRemoveMoveFromUser=(userId:string)=>{
-        setUsers((prev)=>{
-            const newUsers=prev.users
-            const oldMoves=prev.users.get(userId)
+        setRoom((prev)=>{
+            const newUsersMoves=prev.usersMoves
+            const oldMoves=prev.usersMoves.get(userId)
             oldMoves?.pop()
 
-            newUsers.set(userId,oldMoves||[])
+            newUsersMoves.set(userId,oldMoves||[])
 
-            return {...prev,users:newUsers}
+            return {...prev,usersMoves:newUsersMoves}
         })
     }
 

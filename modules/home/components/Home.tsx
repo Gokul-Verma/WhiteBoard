@@ -4,13 +4,14 @@ import { useSetRoomId } from "@/common/recoil/room";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useState } from "react"
 import NotFoundModal from "../modals/NotFound";
+import { io } from "socket.io-client";
 
 
 const Home=()=>{
     const[roomId,setRoomId]=useState("");
+    const [username,setUsername]=useState("");
     const setAtomRoomId=useSetRoomId();
     const router =useRouter();
-
     const {openModal}=useModal();
 
     useEffect(()=>{
@@ -39,12 +40,14 @@ const Home=()=>{
 
     
     const handleCreateRoom =()=>{
-        socket.emit("create_room");
+        socket.emit("create_room",username);
+        console.log("Socket connected:", socket.connected);
     }
-
+    
     const handleJoinRoom =(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
-        socket.emit("join_room",roomId);
+        socket.emit("join_room",roomId,username);
+        
     };
     return (
         <div style={{
@@ -58,6 +61,19 @@ const Home=()=>{
            <h3>
             Real Time WhiteBoard
            </h3>
+
+           <div
+           style={{
+            
+           }}>
+            <label>Enter Your Name</label>
+            <input placeholder="USERNAME"
+            value={username}
+            onChange={(e)=>setUsername(e.target.value)}
+            
+            ></input>
+           </div>
+
            <form
            style={{
             display:"flex",

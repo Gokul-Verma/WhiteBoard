@@ -2,7 +2,7 @@ import { useMyMoves } from "@/common/recoil/room";
 import { useBoardPosition } from "./useBoardPosition";
 import { getPos } from "@/common/lib/getPos";
 import { socket } from "@/common/lib/socket";
-import { useOptions } from "@/common/recoil/options";
+import { useOptionValue, useOptions } from "@/common/recoil/options";
 import { useUsers } from "@/common/recoil/users";
 import { useState, useEffect, useCallback } from "react";
 import { drawAllMoves } from "../helper/canvas.helpers";
@@ -16,7 +16,7 @@ export const useDraw =(
     const {handleRemoveMyMove,handleAddMyMOve}=useMyMoves();
 
     const users=useUsers();
-    const options=useOptions();
+    const options=useOptionValue();
     const [drawing,setDrawing]=useState(false);
     const boardPosition=useBoardPosition();
 

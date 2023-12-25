@@ -1,9 +1,10 @@
 import { createServer } from "http";
 import {} from "@/common/types/global"
 import express from "express";
-
+import cors from "cors";
 import next, {NextApiHandler} from 'next';
 import {Server} from "socket.io";
+
 const port= parseInt(process.env.PORT||"3000",10);
 
 const dev= process.env.NODE_ENV!=="production";
@@ -16,8 +17,12 @@ nextApp.prepare().then(async ()=>{
     const app=express();
     const server=createServer(app);
 
-    const io=new Server<ClientToServerEvents,ServerToClientEvents>(server);
-
+    const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
+        cors: {
+          origin: "http://localhost:3000", // Update with your client's URL and port
+          methods: ["GET", "POST"],
+        },
+      });console.log(io.on);
     app.get("/health",async(_,res)=>{
         res.send("Healthy");
     });
@@ -39,22 +44,8 @@ nextApp.prepare().then(async ()=>{
         room.users.get(socketId)!.pop();
     };
     
-    const leaveRoom=(roomId:string,socketId:string)=>{
-        const room =rooms.get(roomId);
-        if(!room) return;
-        const userMoves=room.users.get(socketId)!;
-
-        room.drawed.push(...userMoves);
-
-        room.users.delete(socketId);
-
-        console.log(room);
-
-    }
-    
     io.on("connection",(socket)=>{
-        console.log("connection");
-        
+        console.log("connection"); 
 
         const getRoomId=()=>{
             const joinedRoom =[...socket.rooms].find((room)=>room!==socket.id)
@@ -64,44 +55,63 @@ nextApp.prepare().then(async ()=>{
             
             return joinedRoom;
         };
+        const leaveRoom=(roomId:string,socketId:string)=>{
+            const room =rooms.get(roomId);
+            if(!room) return;
+            const userMoves=room.users.get(socketId)!;
+    
+            room.drawed.push(...userMoves);
+    
+            room.users.delete(socketId);
+    
+            console.log(room);
+    
+        }
 
-        socket.on("create_room",()=>{
+        socket.on("create_room",(username)=>{
             let roomId:string;
             do{
                 roomId=Math.random().toString(36).substring(2,6);
                 }while(rooms.has(roomId));
             
             socket.join(roomId);
-            rooms.set(roomId,{users:new Map(),drawed:[]});
+            rooms.set(roomId,{usersMoves:new Map([[socket.id,[]]]),drawed:[],users:new Map([[socket.id,username]])});
             rooms.get(roomId)?.users.set(socket.id,[]);
             
 
             io.to(socket.id).emit("created",roomId);
         });
 
-        socket.on("join_room",(roomId:string)=>{
-            if(rooms.has(roomId)){
+        socket.on("join_room",(roomId,username)=>{
+            const room = rooms.get(roomId);
+
+            if (room && room.users.size < 12) {
                 socket.join(roomId);
 
-                io.to(socket.id).emit("joined",roomId);
-            }
-            else
-                io.to(socket.id).emit("joined","",true);
-        });
+                room.users.set(socket.id, username);
+                room.usersMoves.set(socket.id, []);
 
-        socket.on("joined_room",()=>{
-            console.log("joined Room");
-            const roomId=getRoomId();
-            const room=rooms.get(roomId);
-            if(room)
-            {
-                room.users.set(socket.id,[]);
-                rooms.get(roomId)?.users.set(socket.id,[]);
-                io.to(socket.id).emit("room",room,JSON.stringify([...room.users]));
-            }
+                io.to(socket.id).emit("joined", roomId);
+            } else io.to(socket.id).emit("joined", "", true);
+    });
 
-            socket.broadcast.to(roomId).emit("new_user",socket.id);
-        });
+    socket.on("joined_room", () => {
+        const roomId = getRoomId();
+  
+        const room = rooms.get(roomId);
+        if (!room) return;
+  
+        io.to(socket.id).emit(
+          "room",
+          room,
+          JSON.stringify([...room.usersMoves]),
+          JSON.stringify([...room.users])
+        );
+  
+        socket.broadcast
+          .to(roomId)
+          .emit("new_user", socket.id, room.users.get(socket.id) || "Anonymous");
+      });
 
         socket.on("leave_room",()=>{
             const roomId=getRoomId();
@@ -138,7 +148,7 @@ nextApp.prepare().then(async ()=>{
         });
     });
 
-    app.all("+",(req:any,res:any)=> nextHandler(req,res))
+    app.all("*",(req:any,res:any)=> nextHandler(req,res))
 
     server.listen(port,()=>{
         console.log(`Server is ready to listen on ${port}`);

@@ -1,3 +1,5 @@
+
+
 export declare global{
 
     interface CtxOptions{
@@ -9,34 +11,44 @@ export declare global{
         path:[number,number][];
         options:CtxOptions;
     }
-    type Room={users:Map<string,Move[]>; drawed:Move[]};
+    type Room={
+        usersMoves:Map<string,Move[]>; 
+        drawed:Move[];
+        users:Map<string,sting>;
+    };
 
     interface ClientRoom{
         id:string;
-        users:Map<string,Move[]>
+        usersMoves:Map<string,Move[]>
         movesWithoutUser:Move[];
-        myMoves:Move[]
+        myMoves:Move[],
+        users:Map<string,string>
     }
 
 
-    interface ServerToClientEvents{
-        room:(room:Room, usersToParse:string)=>void;
-        created:(roomId:string)=>void;
-        joined:(room:string,failed?:boolean)=>void;
-        user_draw:(move:Move,userId:string)=>void;
-        user_undo:(userId:string)=>void;
-        mouse_moved:(x:number, y:number,userId:string)=>void;
-        //users_in_room:(socketIds:string[])=>void;
-        new_user:(userId:string)=>void;
-        user_disconnected:(userId:string)=>void;
-    }
-    interface ClientToServerEvents{
-        draw:(move:Move)=>void;
-        mouse_move:(x:number, y:number)=>void;
-        undo:()=>void;
-        create_room:()=>void;
-        join_room:(room:string)=>void;
-        joined_room:()=>void;
-        leave_room:()=>void;
-    }
+    interface ServerToClientEvents {
+        room_exists: (exists: boolean) => void;
+        joined: (roomId: string, failed?: boolean) => void;
+        room: (room: Room, usersMovesToParse: string, usersToParse: string) => void;
+        created: (roomId: string) => void;
+        your_move: (move: Move) => void;
+        user_draw: (move: Move, userId: string) => void;
+        user_undo(userId: string): void;
+        mouse_moved: (x: number, y: number, userId: string) => void;
+        new_user: (userId: string, username: string) => void;
+        user_disconnected: (userId: string) => void;
+        new_msg: (userId: string, msg: string) => void;
+      }
+    
+      interface ClientToServerEvents {
+        check_room: (roomId: string) => void;
+        draw: (move: Move) => void;
+        mouse_move: (x: number, y: number) => void;
+        undo: () => void;
+        create_room: (username: string) => void;
+        join_room: (room: string, username: string) => void;
+        joined_room: () => void;
+        leave_room: () => void;
+        send_msg: (msg: string) => void;
+      }
 }

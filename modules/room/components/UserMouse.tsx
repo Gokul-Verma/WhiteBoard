@@ -4,7 +4,7 @@ import { socket } from "@/common/lib/socket";
 import { motion } from "framer-motion";
 import {BsCursorFill} from "react-icons/bs"
 
-export const UserMouse = ({userId}:{userId:string})=>{
+export const UserMouse = ({userId,username}:{userId:string,username:string})=>{
     const boardPos=useBoardPosition();
     const [x,setX] =useState(boardPos.x.get());
     const [y,setY] =useState(boardPos.y.get());
@@ -50,6 +50,7 @@ export const UserMouse = ({userId}:{userId:string})=>{
         transition={{duration: 0.1,ease:"linear"}}
         >
         <BsCursorFill />
+        <p> {username}</p>
         </motion.div>
     );
 
