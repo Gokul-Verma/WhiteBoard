@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, forwardRef, useEffect, useRef } from "react";
 import {MotionValue, useMotionValue, motion} from "framer-motion";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
-import { useBoardPosition } from "../hooks/useBoardPosition";
+import { useBoardPosition } from "../../hooks/useBoardPosition";
 
 
 const MiniMap = forwardRef<

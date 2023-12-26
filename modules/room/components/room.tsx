@@ -1,17 +1,21 @@
 import { useRoom, useRoomId, useSetRoomId } from "@/common/recoil/room";
 import RoomContextProvider from "../context/Room.context"
-import Canvas from "./Canvas"
-import { MousePosition } from "./MousePosition"
-import { MouseRenderer } from "./MouseRenderer"
+import Canvas from "./board/Canvas"
+import { MousePosition } from "./board/MousePosition"
+import { MouseRenderer } from "./board/MouseRenderer"
 import { ToolBar } from "../components/toolbar/ToolBar";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { socket } from "@/common/lib/socket";
 import NameInput from "./NameInput";
+import UserList from "./UserList";
 
 const Room =()=>{
 
     const room=useRoom();
+
+    const undoRef=useRef<HTMLButtonElement>(null);
+    
     if(!room.id)return <NameInput/>
 
     return(
@@ -22,8 +26,9 @@ const Room =()=>{
                 width:"vw",
                 overflow:"hidden"
             }}>
-                <ToolBar/>
-                <Canvas/>
+                <UserList/>
+                <ToolBar ref={undoRef}/>
+                <Canvas ref={undoRef}/>
                 <MousePosition/>
                 <MouseRenderer/>
             </div>

@@ -13,7 +13,7 @@ export const useDraw =(
     blocked:boolean,
 )=>
 {
-    const {handleRemoveMyMove,handleAddMyMOve}=useMyMoves();
+    const {handleRemoveMyMove,handleAddMyMove}=useMyMoves();
 
     const users=useUsers();
     const options=useOptionValue();
@@ -23,8 +23,6 @@ export const useDraw =(
     const movedX=boardPosition.x;
     const movedY=boardPosition.y;
 
-
-
     useEffect(()=>{
         if(ctx)
         {
@@ -32,9 +30,20 @@ export const useDraw =(
             ctx.lineCap= "round";
             ctx.lineWidth=options.lineWidth;
             ctx.strokeStyle=options.lineColor;
+            if(options.erase)
+                ctx.globalCompositeOperation="destination-out";
         }
-    },[ctx,options.lineWidth,options.lineColor]);
+    });
 
+    useEffect(()=>{
+        socket.on("your_move",(move)=>{
+            handleAddMyMove(move);
+        });
+
+        return()=>{
+            socket.off("your_move");
+        };
+    });
 
     const handleUndo=useCallback(()=>{
         if(ctx){
@@ -77,11 +86,14 @@ export const useDraw =(
         const move:Move={
             path:tempMoves,
             options,
+            timestamp:0,
+            eraser:options.erase
         };
 
-        handleAddMyMOve(move);
+       
 
         tempMoves=[]
+        ctx.globalCompositeOperation="source-over";
         socket.emit("draw",move);
         
     };

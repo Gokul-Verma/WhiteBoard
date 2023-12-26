@@ -1,3 +1,4 @@
+import { COLORS_ARRAY } from "@/common/constants/color";
 import { socket } from "@/common/lib/socket";
 import { useSetRoom, useSetUsers } from "@/common/recoil/room/room.hooks";
 import usersAtom, { useUserIds } from "@/common/recoil/users";
@@ -21,9 +22,23 @@ const RoomContextProvider=({children}:{children:ReactChild})=>{
 
     useEffect(()=>{
         socket.on("room",(room,userMovesToParse,usersToParse)=>{
-            const users=new Map<string,string>(JSON.parse(usersToParse));
+            const usersParsed=new Map<string,string>(JSON.parse(usersToParse));
             const userMoves=new Map<string,Move[]>(JSON.parse(userMovesToParse));
-            
+            const users=new Map<string,User>();
+
+            usersParsed.forEach((name,id)=>{
+                if(id===socket.id)return;
+
+                const index=[...usersParsed.keys()].indexOf(id);
+                const color=COLORS_ARRAY[index%COLORS_ARRAY.length]
+
+                users.set(id,{
+                    name,
+                    color
+                })
+            })
+
+
             setRoom((prev)=>({
                 ...prev,
                 users,

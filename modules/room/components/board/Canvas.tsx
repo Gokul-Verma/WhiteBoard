@@ -1,19 +1,20 @@
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
 import { useMotionValue,motion } from "framer-motion";
-import {  useEffect, useRef, useState } from "react"
+import {  RefObject, useEffect, useRef, useState } from "react"
 import {useKeyPressEvent} from "react-use";
 import { socket } from "@/common/lib/socket";
 import MiniMap from "./minimap";
-import { useBoardPosition } from "../hooks/useBoardPosition";
+import { useBoardPosition } from "../../hooks/useBoardPosition";
 import { useRoom } from "@/common/recoil/room";
-import { drawAllMoves } from "../helper/canvas.helpers";
-import { useSocketDraw } from "../hooks/useSocketDraw";
-import { useDraw } from "../hooks/useDraw";
+import { drawAllMoves } from "../../helper/canvas.helpers";
+import { useSocketDraw } from "../../hooks/useSocketDraw";
+import { useDraw } from "../../hooks/useDraw";
+import Background from "./Background";
 
 
 
-const Canvas=()=>{
+const Canvas=({undoRef}:{undoRef:RefObject<HTMLButtonElement>})=>{
     const room=useRoom();
     const canvasRef=useRef<HTMLCanvasElement>(null);
     const smallCanvasRef=useRef<HTMLCanvasElement>(null);
@@ -73,10 +74,16 @@ const Canvas=()=>{
             }
         };
         window.addEventListener("keyup",handleKeyUp);
+
+        const undoBtn=undoRef.current;
+
+        undoBtn?.addEventListener("click",handleUndo);
+
         return () => {
             window.removeEventListener("keyup", handleKeyUp);
+            undoBtn?.removeEventListener("click",handleUndo);
         };
-    },[dragging]);
+    },[dragging,handleUndo,undoRef]);
 
 
     useEffect(()=>{
@@ -98,9 +105,7 @@ const Canvas=()=>{
             overflow: 'hidden',
             //background: '#ccc', // replace with your desired background color
           }}>
-            <button onClick={handleUndo}>
-              UNDO
-              </button>
+          
             <motion.canvas
                 ref={canvasRef}
                 width={CANVAS_SIZE.width}
@@ -139,6 +144,7 @@ const Canvas=()=>{
                     )
                   }}
             />
+            {/*<Background/>*/}
             <MiniMap
                 ref={smallCanvasRef}
                 dragging={dragging}
