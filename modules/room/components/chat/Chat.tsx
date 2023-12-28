@@ -95,4 +95,5 @@ const Chat =()=>{
       </div>
         </motion.div>
     )
-}
+};
+export default Chat;

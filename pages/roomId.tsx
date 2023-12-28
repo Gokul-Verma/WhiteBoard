@@ -1,4 +1,4 @@
-import Room from "@/modules/room/components/room"
+import Room from "@/modules/room/components/Room"
 
 const RoomPage =()=>{
     return <Room/>

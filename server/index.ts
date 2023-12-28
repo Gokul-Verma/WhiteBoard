@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import {} from "@/common/types/global"
 import express from "express";
-import cors from "cors";
+
 import next, {NextApiHandler} from 'next';
 import {Server} from "socket.io";
 
@@ -60,10 +60,11 @@ nextApp.prepare().then(async ()=>{
             if(!room) return;
             const userMoves=room.users.get(socketId)!;
     
-            room.drawed.push(...userMoves);
+            if(userMoves) room.drawed.push(...userMoves);
     
             room.users.delete(socketId);
-    
+            
+            socket.leave(roomId);
             console.log(room);
     
         }
@@ -123,8 +124,14 @@ nextApp.prepare().then(async ()=>{
 
         socket.on("draw",(move)=>{
             const roomId=getRoomId();
-            addMove(roomId,socket.id,move);
-            socket.broadcast.to(roomId).emit("user_draw",move,socket.id);
+
+            const timestamp=Date.now();
+
+
+            addMove(roomId,socket.id,{...move,timestamp});
+            
+            io.to(socket.id).emit("your_move",{...move,timestamp})
+            socket.broadcast.to(roomId).emit("user_draw",{...move,timestamp},socket.id);
 
         });
 
@@ -134,6 +141,10 @@ nextApp.prepare().then(async ()=>{
             UndoMove(roomId,socket.id);
             socket.broadcast.to(roomId).emit("user_undo",socket.id);
         })
+
+        socket.on("send_msg",(msg)=>{
+            io.to(getRoomId()).emit("new_msg",socket.id,msg)
+        });
 
         socket.on("mouse_move",(x,y)=>{
             console.log("mouse moved");
