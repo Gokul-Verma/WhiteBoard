@@ -3,11 +3,12 @@ import { roomContext } from "../context/Room.context"
 
 
 export const useRefs=()=>{
-    const {undoRef,bgRef,canvasRef}=useContext(roomContext);
+    const {undoRef,bgRef,canvasRef,minimapRef}=useContext(roomContext);
 
     return{
         undoRef,
         bgRef,
-        canvasRef
+        canvasRef,
+        minimapRef
     };
 }

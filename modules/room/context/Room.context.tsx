@@ -1,23 +1,28 @@
 import { COLORS_ARRAY } from "@/common/constants/color";
 import { socket } from "@/common/lib/socket";
-import { useSetRoom, useSetUsers } from "@/common/recoil/room/room.hooks";
+import { useRoom, useSetRoom, useSetUsers } from "@/common/recoil/room/room.hooks";
+//import users from "@/common/recoil/users";
 import usersAtom, { useUserIds } from "@/common/recoil/users";
 import { MotionValue, useMotionValue } from "framer-motion";
-import { createContext,ReactChild, RefObject, useEffect, useRef } from "react";
+import { createContext,ReactChild, RefObject, useEffect, useRef, useState } from "react";
 import { useSetRecoilState } from "recoil";
-
+import {toast} from "react-toastify";
 
 export const roomContext=createContext<{
     x:MotionValue<number>;
     y:MotionValue<number>;
-    undoRef:RefObject<HTMLButtonElement>
-    canvasRef: RefObject<HTMLCanvasElement>
-    bgRef:RefObject<HTMLCanvasElement>
+    undoRef:RefObject<HTMLButtonElement>;
+    canvasRef: RefObject<HTMLCanvasElement>;
+    bgRef:RefObject<HTMLCanvasElement>;
+    minimapRef:RefObject<HTMLCanvasElement>;
+    moveImage:string;
+    setMoveImage:(base64:string)=>void;
 }>(null!);
 
 const RoomContextProvider=({children}:{children:ReactChild})=>{
     
     const setRoom=useSetRoom();
+    const { users } = useRoom();
     const {handleAddUser,handleRemoveUser}=useSetUsers();
 
     const x = useMotionValue(0)
@@ -27,12 +32,12 @@ const RoomContextProvider=({children}:{children:ReactChild})=>{
     const canvasRef=useRef<HTMLCanvasElement>(null);
     const bgRef=useRef<HTMLCanvasElement>(null);
 
-
+    const [moveImage,setMoveImage]=useState("");
     useEffect(()=>{
         socket.on("room",(room,userMovesToParse,usersToParse)=>{
             const usersParsed=new Map<string,string>(JSON.parse(usersToParse));
             const userMoves=new Map<string,Move[]>(JSON.parse(userMovesToParse));
-            const users=new Map<string,User>();
+            const newUsers=new Map<string,User>();
 
             usersParsed.forEach((name,id)=>{
                 if(id===socket.id)return;
@@ -40,7 +45,7 @@ const RoomContextProvider=({children}:{children:ReactChild})=>{
                 const index=[...usersParsed.keys()].indexOf(id);
                 const color=COLORS_ARRAY[index%COLORS_ARRAY.length]
 
-                users.set(id,{
+                newUsers.set(id,{
                     name,
                     color
                 })
@@ -49,17 +54,25 @@ const RoomContextProvider=({children}:{children:ReactChild})=>{
 
             setRoom((prev)=>({
                 ...prev,
-                users,
+                users:newUsers,
                 userMoves,
                 movesWithoutUser:room.drawed
             }))
         })
        socket.on("new_user",(userId,username)=>{
+        toast(`${username} has joined the room.`, {
+            position: "top-center",
+            theme: "colored",
+          });
         handleAddUser(userId,username);
        });
        
         socket.on("user_disconnected",(userId)=>{
-           handleRemoveUser(userId);
+            toast(`${users.get(userId)?.name || "Anonymous"} has left the room.`, {
+                position: "top-center",
+                theme: "colored",
+              });
+            handleRemoveUser(userId);
             });
         
 
@@ -68,10 +81,10 @@ const RoomContextProvider=({children}:{children:ReactChild})=>{
             socket.off("new_user");
             socket.off("user_disconnected");
         }
-    },[handleAddUser,handleRemoveUser,setRoom]);
+    },[handleAddUser,handleRemoveUser,setRoom,users]);
 
     return (
-        <roomContext.Provider value={{x,y,bgRef,undoRef,canvasRef}}>{children}</roomContext.Provider>
+        <roomContext.Provider value={{x,y,bgRef,undoRef,canvasRef,minimapRef,moveImage,setMoveImage}}>{children}</roomContext.Provider>
     )
 };
 export default RoomContextProvider;

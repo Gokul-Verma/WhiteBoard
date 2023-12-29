@@ -41,23 +41,7 @@ const Canvas=()=>{
 
     const {x,y}=useBoardPosition();
 
-    const copyCanvasToSmall =useCallback(()=>{
-        if(canvasRef.current&&smallCanvasRef.current)
-        {
-          const smallCtx=smallCanvasRef.current.getContext("2d");
-          if(smallCtx)
-          {
-            smallCtx.clearRect(0,0,CANVAS_SIZE.width,CANVAS_SIZE.height)
-            smallCtx.drawImage(
-                canvasRef.current,
-                0,
-                0,
-                CANVAS_SIZE.width,
-                CANVAS_SIZE.height,
-            );
-          }
-        }
-    },[canvasRef,smallCanvasRef])
+  
 
 
     const {handleDraw, handleStartDrawing,handleEndDrawing,handleUndo,drawing}=useDraw(

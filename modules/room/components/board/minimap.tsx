@@ -3,17 +3,17 @@ import {MotionValue, useMotionValue, motion} from "framer-motion";
 import { useViewPortSize } from "@/common/hooks/useViewPortSize";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
 import { useBoardPosition } from "../../hooks/useBoardPosition";
+import { useRefs } from "../../hooks/useRefs";
 
 
-const MiniMap = forwardRef<
-HTMLCanvasElement,{
-dragging: boolean;
-setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
-}>
-(({dragging,setMovedMiniMap},ref)=>{
+const MiniMap = 
+({dragging,setMovedMiniMap}:{
+    dragging: boolean;
+    setMovedMiniMap:Dispatch<SetStateAction<boolean>>
+})=>{
     const {x,y}=useBoardPosition();
     const containerRef=useRef<HTMLDivElement>(null)
-
+    const {minimapRef}=useRefs();
     const {width,height}=useViewPortSize();
      
     const miniX=useMotionValue(0)
@@ -46,7 +46,7 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
         backgroundColor: 'grey', // Specify your preferred shade of grey using its hex code
     }}>
         <canvas
-            ref={ref}
+            ref={minimapRef}
             width={CANVAS_SIZE.width}
             height={CANVAS_SIZE.height}
             style={{ height: '100vh', width: '100vw' }}
@@ -80,9 +80,6 @@ setMovedMiniMap: Dispatch<SetStateAction<boolean>>;
 
     </div>
     )
-})
-
-MiniMap.displayName='MiniMap';
-
+}
 
 export default MiniMap;

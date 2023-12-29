@@ -9,6 +9,7 @@ import { FaUndo } from "react-icons/fa";
 import ShapeSelector from "./ShapeSelector";
 import { useRefs } from "../../hooks/useRefs";
 import { CANVAS_SIZE } from "@/common/constants/canvasSize";
+import ImagePicker from "./ImagePicker";
 
 export const ToolBar=()=>{
 
@@ -66,6 +67,7 @@ export const ToolBar=()=>{
             <ShapeSelector/>
             <LineWidthPicker/>
             <Eraser/>
+            <ImagePicker/>
             
             <button style={{
                 

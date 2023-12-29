@@ -1,16 +1,17 @@
 import { LargeNumberLike } from "crypto";
 
 export declare global{
-    type Shape ="line"|"circle"|"rect";
+    type Shape ="line"|"circle"|"rect"|"image";
     interface CtxOptions{
         lineWidth:number;
         lineColor:string;
         erase:boolean;
         shape:Shape;
+
     }
     
     interface Move{
-        shape:Shape;
+        
         radius:number;
         width:number;
         height:number;
@@ -18,6 +19,7 @@ export declare global{
         options:CtxOptions;
         timestamp:number;
         eraser:boolean;
+        base64:string;
     }
     type Room={
         usersMoves:Map<string,Move[]>; 

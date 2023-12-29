@@ -11,6 +11,7 @@ import NameInput from "./NameInput";
 import UserList from "./UserList";
 import ChatInput from "./chat/ChatInput";
 import Chat from "./chat/Chat";
+import MoveImage from "./toolbar/MoveImage";
 
 const Room =()=>{
 
@@ -27,6 +28,7 @@ const Room =()=>{
             }}>
                 <UserList/>
                 <ToolBar />
+                <MoveImage/>
                 <Canvas />
                 <MousePosition/>
                 <MouseRenderer/>

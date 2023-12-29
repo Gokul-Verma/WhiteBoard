@@ -6,72 +6,58 @@ import { useOptionValue, useOptions } from "@/common/recoil/options";
 import { useUsers } from "@/common/recoil/users";
 import { useState, useEffect, useCallback } from "react";
 import { drawCircle, drawLine, drawRect } from "../helper/canvas.helpers";
+import { useRefs } from "./useRefs";
+import { string } from "prop-types";
 
 let tempMoves: [number, number][] = [];
 let tempCircle = { cX: 0, cY: 0, radiusX: 0, radiusY: 0 };
 let tempSize = { width: 0, height: 0 };
-let tempImageData: ImageData | undefined;
 let tempRadius=0;
-const setCtxOptions=(ctx:CanvasRenderingContext2D,options:CtxOptions)=>{
-    ctx.lineJoin="round";
-    ctx.lineCap="round";
-    (ctx.lineWidth=options.lineWidth),(ctx.strokeStyle=options.lineColor);
-    if(options.erase)
-        ctx.globalCompositeOperation="destination-out";
-
-};
 
 
 export const useDraw =(
-    ctx:CanvasRenderingContext2D|undefined,
     blocked:boolean,
-)=>
-{
-    const {handleRemoveMyMove,handleAddMyMove}=useMyMoves();
-    const room=useRoom();
-    const users=useUsers();
-    const options=useOptionValue();
-    const [drawing,setDrawing]=useState(false);
-    const boardPosition=useBoardPosition();
-
-    const movedX=boardPosition.x;
-    const movedY=boardPosition.y;
-
-    useEffect(()=>{
-        if(ctx)
-        {
-            setCtxOptions(ctx,options);
-        }
-    });
-
-    useEffect(()=>{
-        socket.on("your_move",(move)=>{
-            handleAddMyMove(move);
-        });
-
-        return()=>{
-            socket.off("your_move");
-        };
-    });
-
-    const handleUndo=useCallback(()=>{
-        if(ctx){
-            handleRemoveMyMove();
-            socket.emit("undo")
-
-        }
-    },[ctx,handleRemoveMyMove]);
-
-    useEffect(()=>{
-        const handleUndoKeyBoard =(e:KeyboardEvent)=>{
-            if(e.key==='z'&&e.ctrlKey){
-                handleUndo();
+    drawAllMoves:()=>void
+    )=>
+    {
+        const {canvasRef}=useRefs();
+        const {handleRemoveMyMove,handleAddMyMove}=useMyMoves();
+        const room=useRoom();
+        const users=useUsers();
+        const options=useOptionValue();
+        const [drawing,setDrawing]=useState(false);
+        const boardPosition=useBoardPosition();
+        
+        const movedX=boardPosition.x;
+        const movedY=boardPosition.y;
+        const [ctx,setCtx]=useState<CanvasRenderingContext2D>()
+        
+        useEffect(()=>{
+            const newCtx=canvasRef.current?.getContext("2d");
+            if(newCtx)
+            {
+                setCtx(newCtx);
             }
-        }
+        },[canvasRef]);
+        
+        const setCtxOptions=()=>{
+            if(ctx)
+            {
+                ctx.lineJoin="round";
+                ctx.lineCap="round";
+                (ctx.lineWidth=options.lineWidth),(ctx.strokeStyle=options.lineColor);
+                if(options.erase)
+                    ctx.globalCompositeOperation="destination-out";
+                else 
+                    ctx.globalCompositeOperation="source-over"
+            }
+        };
 
-        document.addEventListener("keydown",handleUndoKeyBoard);
-    },[handleUndo]);
+    const drawAndSet=()=>{
+        drawAllMoves();
+        setCtxOptions();
 
+    };
 
     const handleStartDrawing =(x:number,y:number)=>{
         if(!ctx||blocked)
@@ -81,6 +67,7 @@ export const useDraw =(
         const FinalX=getPos(x,movedX);
         const FinalY=getPos(y,movedY);
         setDrawing(true);
+        setCtxOptions();
         ctx.beginPath();
         ctx.lineTo(FinalX,FinalY);
         ctx.stroke();
@@ -101,18 +88,17 @@ export const useDraw =(
 
         const move:Move={
             ...tempSize,
-            shape:options.shape,
             radius:tempRadius,
             path:tempMoves,
             options,
             timestamp:0,
-            eraser:options.erase
+            eraser:options.erase,
+            base64:""
         };
 
        
 
         tempMoves=[]
-        ctx.globalCompositeOperation="source-over";
         socket.emit("draw",move);
         
     };
@@ -150,7 +136,6 @@ export const useDraw =(
         handleDraw,
         handleEndDrawing,
         handleStartDrawing,
-        handleUndo,
         drawing,
     }
 };
