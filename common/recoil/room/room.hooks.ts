@@ -12,12 +12,6 @@ export const useSetRoom=()=>{
     return setRoom;
 }
 
-export const useRoomId =()=>{
-    const {id}= useRecoilValue(roomAtom);
-
-    return id;
-};
-
 export const useSetRoomId =()=>{
     const setRoomId=useSetRecoilState(roomAtom);
 

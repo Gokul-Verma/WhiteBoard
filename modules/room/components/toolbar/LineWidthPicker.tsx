@@ -6,7 +6,7 @@ import { useClickAway } from "react-use";
 
 import { useOptions } from "@/common/recoil/options";
 
-//import { EntryAnimation } from "../../animations/Entry.animations";
+import { EntryAnimation } from "../../animations/Entry.animations";
 
 const LineWidthPicker = () => {
   const [options, setOptions] = useOptions();
@@ -22,7 +22,7 @@ const LineWidthPicker = () => {
       <button
         className="btn-icon text-xl"
         onClick={() => setOpened(!opened)}
-        //disabled={options.mode === "select"}
+        disabled={options.mode === "select"}
       >
         <BsBorderWidth />
       </button>
@@ -30,7 +30,7 @@ const LineWidthPicker = () => {
         {opened && (
           <motion.div
             className="absolute top-[6px] left-14 w-36"
-            //variants={EntryAnimation}
+            variants={EntryAnimation}
             initial="from"
             animate="to"
             exit="from"

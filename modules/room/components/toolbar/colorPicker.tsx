@@ -1,58 +1,71 @@
-import { useOptions } from "@/common/recoil/options"
+import { useRef, useState } from "react";
+
 import { AnimatePresence, motion } from "framer-motion";
-import { relative } from "path";
-import { useRef, useState } from "react"
+import { RgbaColorPicker } from "react-colorful";
+import { BsPaletteFill } from "react-icons/bs";
 import { useClickAway } from "react-use";
-import { ColorPickerAnimation } from "../../animations/ColorPicker.animations";
-import {HexColorPicker} from "react-colorful";
 
-const ColorPicker=()=>{
-    const [options,setOptions] =useOptions();
+import { useOptions } from "@/common/recoil/options/options.hooks";
 
-    const ref= useRef<HTMLDivElement>(null);
+import { EntryAnimation } from "../../animations/Entry.animations";
 
-    const[opened,setOpened]=useState(false);
+const ColorPicker = () => {
+  const [options, setOptions] = useOptions();
 
-    useClickAway(ref,()=>{
-        setOpened(false);
-    })
+  const ref = useRef<HTMLDivElement>(null);
 
-    return(
-        <div style={{
-            position:"relative",
-            display:"flex",
-            justifyItems:"center",
+  const [opened, setOpened] = useState(false);
 
+  useClickAway(ref, () => setOpened(false));
 
-        }} 
-        ref={ref}>
-            <button style={{}} 
-            onClick={()=>setOpened(!opened)}
-            >
-                <AnimatePresence>
-                    (opened&&(
-                        <motion.div
-                        style={{
-                            position:"absolute",
-                            top:0,
-                            left:14,
-                        }}
-                        //variants={ColorPickerAnimation}
-                        initial="from"
-                        animate="to"
-                        exit="from"
-                        >
-                            <HexColorPicker 
-                            color={options.lineColor}
-                            onChange={(e)=>setOptions((prev)=>({...prev,lineColor:e}))}
-                            />
-                        </motion.div>
-                    ))
-                </AnimatePresence>
-            </button>
-
-        </div>
-    )
+  return (
+    <div className="relative flex items-center" ref={ref}>
+      <button
+        className="btn-icon"
+        onClick={() => setOpened(!opened)}
+        disabled={options.mode === "select"}
+      >
+        <BsPaletteFill />
+      </button>
+      <AnimatePresence>
+        {opened && (
+          <motion.div
+            className="absolute left-10 mt-24 sm:left-14"
+            variants={EntryAnimation}
+            initial="from"
+            animate="to"
+            exit="from"
+          >
+            <h2 className="ml-3 font-semibold text-black dark:text-white">
+              Line color
+            </h2>
+            <RgbaColorPicker
+              color={options.lineColor}
+              onChange={(e) => {
+                setOptions({
+                  ...options,
+                  lineColor: e,
+                });
+              }}
+              className="mb-5"
+            />
+            <h2 className="ml-3 font-semibold text-black dark:text-white">
+              Fill color
+            </h2>
+            <RgbaColorPicker
+              color={options.fillColor}
+              onChange={(e) => {
+                setOptions({
+                  ...options,
+                  fillColor: e,
+                });
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
 
 export default ColorPicker;

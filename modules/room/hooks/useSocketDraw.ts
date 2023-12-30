@@ -1,46 +1,40 @@
-import { socket } from "@/common/lib/socket";
-import usersAtom from "@/common/recoil/users";
 import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
-import { handleMove, drawAllMoves } from "../helper/canvas.helpers";
+
+import { socket } from "@/common/lib/socket";
 import { useSetUsers } from "@/common/recoil/room";
 
-export const useSocketDraw=(drawing:boolean)=>{
-    const { handleAddMoveToUser, handleRemoveMoveFromUser } = useSetUsers();
-    useEffect(()=>{
-        let moveToDrawLater:Move|undefined;
-        let userIdLater="";
-        socket.on("user_draw",(move,userId)=>{
-            if(!drawing)
-            {
-              handleAddMoveToUser(userId,move);
-            }
-            else{
-                moveToDrawLater=move;
-                userIdLater=userId;
-            }
-        });
-        
+export const useSocketDraw = (drawing: boolean) => {
+  const { handleAddMoveToUser, handleRemoveMoveFromUser } = useSetUsers();
 
-        return ()=>{
-            socket.off("user_draw");
+  useEffect(() => {
+    let moveToDrawLater: Move | undefined;
+    let userIdLater = "";
 
-            if(moveToDrawLater&&userIdLater)
-            {
-               
-               handleAddMoveToUser(userIdLater,moveToDrawLater);
-            }
-            
-        }
-    
-    },[drawing,handleAddMoveToUser]);
+    socket.on("user_draw", (move, userId) => {
+      if (!drawing) {
+        handleAddMoveToUser(userId, move);
+      } else {
+        moveToDrawLater = move;
+        userIdLater = userId;
+      }
+    });
 
-    useEffect(()=>{
-        socket.on("user_undo",(userId)=>{
-            handleRemoveMoveFromUser(userId);
-        });
-        return ()=>{
-            socket.off("user_undo");
-        }
-    },[handleRemoveMoveFromUser]);
-}
+    return () => {
+      socket.off("user_draw");
+
+      if (moveToDrawLater && userIdLater) {
+        handleAddMoveToUser(userIdLater, moveToDrawLater);
+      }
+    };
+  }, [drawing, handleAddMoveToUser]);
+
+  useEffect(() => {
+    socket.on("user_undo", (userId) => {
+      handleRemoveMoveFromUser(userId);
+    });
+
+    return () => {
+      socket.off("user_undo");
+    };
+  }, [handleRemoveMoveFromUser]);
+};

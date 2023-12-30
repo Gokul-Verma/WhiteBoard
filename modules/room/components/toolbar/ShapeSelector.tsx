@@ -1,74 +1,79 @@
-import { useOptions } from "@/common/recoil/options";
-import { useRef, useState } from "react"
-import { BsPencilFill } from "react-icons/bs";
-import {BiRectangle} from "react-icons/bi";
-import { FaCircle } from "react-icons/fa";
+import { useRef, useState } from "react";
+
+import { motion, AnimatePresence } from "framer-motion";
+import { BiRectangle } from "react-icons/bi";
+import { BsCircle } from "react-icons/bs";
+import { CgShapeZigzag } from "react-icons/cg";
 import { useClickAway } from "react-use";
-import { AnimatePresence, motion } from "framer-motion";
-import { ColorPickerAnimation } from "../../animations/ColorPicker.animations";
 
+import { useOptions } from "@/common/recoil/options";
 
-const ShapeSelector =()=>{
-    const ref=useRef<HTMLDivElement>(null);
+import { EntryAnimation } from "../../animations/Entry.animations";
 
-    const [options,setOptions]= useOptions();
+const ShapeSelector = () => {
+  const [options, setOptions] = useOptions();
 
-    const [opened,setOpened]=useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
-    useClickAway(ref,()=>setOpened(false));
+  const [opened, setOpened] = useState(false);
 
-    const handleShapeChange =(shape:Shape)=>{
-        setOptions((prev)=>({
-            ...prev,
-            shape,
-        }));
-        setOpened(false);
-    };
+  useClickAway(ref, () => setOpened(false));
 
-    return (
-        <div ref={ref}
-        style={{
+  const handleShapeChange = (shape: Shape) => {
+    setOptions((prev) => ({
+      ...prev,
+      shape,
+    }));
 
-        }}
-        
-        >
+    setOpened(false);
+  };
+
+  return (
+    <div className="relative flex items-center" ref={ref}>
+      <button
+        className="btn-icon text-2xl"
+        disabled={options.mode === "select"}
+        onClick={() => setOpened((prev) => !prev)}
+      >
+        {options.shape === "circle" && <BsCircle />}
+        {options.shape === "rect" && <BiRectangle />}
+        {options.shape === "line" && <CgShapeZigzag />}
+      </button>
+
+      <AnimatePresence>
+        {opened && (
+          <motion.div
+            className="absolute left-14 z-10 flex gap-1 rounded-lg border bg-zinc-900 p-2 md:border-0"
+            variants={EntryAnimation}
+            initial="from"
+            animate="to"
+            exit="from"
+          >
             <button
-            onClick={()=>setOpened((prev)=>!prev)}
+              className="btn-icon text-2xl"
+              onClick={() => handleShapeChange("line")}
             >
-                {options.shape==='circle'&&<FaCircle/>}
-                {options.shape==='rect'&&<BiRectangle/>}
-                {options.shape==='line'&&<BsPencilFill/>}
+              <CgShapeZigzag />
             </button>
-            
-            <AnimatePresence>
-                {opened&&(
-                    <motion.div
-                    variants={ColorPickerAnimation}
-                    initial="from"
-                    animate="to"
-                    exit="from"
-                    >
-                    <button
-                    onClick={()=>handleShapeChange("circle")}
-                    >
-                    <FaCircle/>
-                    </button>
-                    <button
-                    onClick={()=>handleShapeChange("rect")}
-                    >
-                    <BiRectangle/>
-                    </button>
-                    <button
-                    onClick={()=>handleShapeChange("line")}
-                    >
-                    <BsPencilFill/>
-                    </button>
 
-                    </motion.div>
-                )}
-            </AnimatePresence>
-         </div>
-    )
+            <button
+              className="btn-icon text-2xl"
+              onClick={() => handleShapeChange("rect")}
+            >
+              <BiRectangle />
+            </button>
+
+            <button
+              className="btn-icon text-2xl"
+              onClick={() => handleShapeChange("circle")}
+            >
+              <BsCircle />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
 
 export default ShapeSelector;
