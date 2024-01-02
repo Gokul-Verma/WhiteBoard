@@ -6,7 +6,7 @@ import { useOptionValue } from "@/common/recoil/options";
 
 import { useRefs } from "../../hooks/useRefs";
 
-const SelectionBtns = () => {
+const SelectionBts = () => {
   const { selection } = useOptionValue();
   const { selectionRefs } = useRefs();
 
@@ -55,4 +55,4 @@ const SelectionBtns = () => {
   );
 };
 
-export default SelectionBtns;
+export default SelectionBts;

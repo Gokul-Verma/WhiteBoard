@@ -4,11 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "nodemon server/index.ts",
-    "build": "next build",
-    "start": "next start",
+    "dev:client": "ts-node server/index.ts",
+    "build:server": "tsc --project tsconfig.server.json",
+    "build:next": "next build",
+    "build": "npm-run-all build:*",
+    "start": "NODE_ENV=production node build/index.js",
     "lint": "next lint"
   },
   "dependencies": {
+    "express": "^4.18.2",
     "framer-motion": "^10.16.16",
     "next": "^14.0.4",
     "nodemon": "^3.0.2",

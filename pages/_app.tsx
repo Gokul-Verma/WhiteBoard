@@ -1,4 +1,4 @@
-//import "../common/styles/global.css"
+import "../common/styles/globals.css"
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { ToastContainer } from "react-toastify";
@@ -12,8 +12,8 @@ const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
       <Head>
-        <title>Collabio | Online Whiteboard</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>WhiteBoard </title>
+        <link rel="icon" href="/white-board.png" />
       </Head>
       <RecoilRoot>
         <ToastContainer />
