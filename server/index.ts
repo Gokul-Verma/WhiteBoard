@@ -18,7 +18,7 @@ nextApp.prepare().then(async () => {
 
   const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
-  app.get("/health", async (_, res) => {
+  app.get("/health", async (req, res) => {
     res.send("Healthy");
   });
 

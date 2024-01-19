@@ -8,7 +8,7 @@ const BackgroundPicker = () => {
   const { openModal } = useModal();
 
   return (
-    <button className="btn-icon" onClick={() => openModal(<BackgroundModal />)}>
+    <button className="btn-icon" onClick={() => openModal(<BackgroundModal/>)}>
       <CgScreen />
     </button>
   );

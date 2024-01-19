@@ -10,8 +10,6 @@ const BackgroundModal = () => {
   const setBackground = useSetBackground();
   const bg = useBackground();
 
-  useEffect(() => closeModal, [bg, closeModal]);
-
   const renderBg = (
     ref: HTMLCanvasElement | null,
     mode: "dark" | "light",
